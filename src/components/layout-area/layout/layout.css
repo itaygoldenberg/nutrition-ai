@@ -1,0 +1,169 @@
+@import "../header/header.css";
+
+:root {
+    color-scheme: dark;
+
+    --da-header-height: 82px;
+    --da-dock-bottom: 30px;
+    --da-dock-space: 126px;
+
+    --da-font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+    --da-bg-950: #030711;
+    --da-bg-900: #060c18;
+    --da-bg-850: #071220;
+    --da-bg-800: #0a1726;
+
+    --da-text-100: #f7fbff;
+    --da-text-200: #e8f0f7;
+    --da-text-400: #b6c4d3;
+    --da-text-500: #8ea0b3;
+    --da-text-600: #687b90;
+
+    --da-green-300: #7ff2d0;
+    --da-green-400: #34e4aa;
+    --da-green-500: #14c98d;
+    --da-cyan-300: #9beaff;
+    --da-cyan-400: #56d7f2;
+    --da-purple-400: #9585ff;
+
+    --da-glass-strong: rgba(14, 23, 36, .72);
+    --da-glass-medium: rgba(14, 23, 36, .58);
+    --da-glass-soft: rgba(255, 255, 255, .055);
+    --da-glass-hover: rgba(255, 255, 255, .085);
+
+    --da-border-soft: rgba(255, 255, 255, .105);
+    --da-border-medium: rgba(255, 255, 255, .15);
+    --da-border-green: rgba(52, 228, 170, .34);
+
+    --da-shadow-low: 0 12px 34px rgba(0, 0, 0, .22);
+    --da-shadow-mid: 0 26px 70px rgba(0, 0, 0, .34);
+    --da-shadow-high: 0 36px 110px rgba(0, 0, 0, .48);
+    --da-glow-green: 0 0 44px rgba(52, 228, 170, .14);
+    --da-glow-cyan: 0 0 54px rgba(86, 215, 242, .12);
+
+    --da-radius-sm: 14px;
+    --da-radius-md: 18px;
+    --da-radius-lg: 24px;
+    --da-radius-xl: 32px;
+    --da-radius-pill: 999px;
+
+    --da-ease: cubic-bezier(.22, .61, .36, 1);
+    --da-ease-out: cubic-bezier(.16, 1, .3, 1);
+    --da-fast: 180ms;
+    --da-base: 320ms;
+    --da-slow: 720ms;
+}
+
+/* Strict Viewport Scroll-Lock Engine injection matching interviewer style */
+html,
+body,
+#root {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100svh;
+    min-width: 320px;
+    background: var(--da-bg-950);
+    color: var(--da-text-100);
+    font-family: var(--da-font);
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden !important;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+    color: #04130f;
+    background: rgba(127, 242, 208, .84);
+}
+
+/* Reconfigured layout wrapper matching interviewer framework structure */
+.Layout {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: hidden !important;
+    background:
+        radial-gradient(circle at 14% 10%, rgba(52, 228, 170, .09), transparent 30%),
+        radial-gradient(circle at 84% 0%, rgba(86, 215, 242, .08), transparent 34%),
+        linear-gradient(180deg, var(--da-bg-850), var(--da-bg-950) 62%);
+}
+
+.Layout::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(90deg, rgba(255, 255, 255, .018) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255, 255, 255, .014) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 72%, transparent 100%);
+    opacity: .54;
+}
+
+.Layout > header {
+    position: relative;
+    z-index: 50;
+    flex-shrink: 0;
+}
+
+/* Main inner content block alignment mapped identically from interviewer template */
+.layout-main {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden !important;
+}
+
+@media (max-width: 900px) {
+    :root {
+        --da-header-height: 74px;
+        --da-dock-bottom: 20px;
+    }
+}
+
+@media (max-width: 700px) {
+    :root {
+        --da-header-height: 68px;
+        --da-dock-bottom: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --da-header-height: 64px;
+        --da-dock-bottom: 10px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto;
+        animation-duration: 1ms;
+        animation-iteration-count: 1;
+        transition-duration: 1ms;
+    }
+}

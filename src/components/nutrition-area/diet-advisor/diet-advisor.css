@@ -1,0 +1,1125 @@
+.DietAdvisor {
+    --advisor-dock-width: min(1480px, calc(100vw - 56px));
+    --advisor-dock-columns: repeat(4, minmax(174px, 1fr)) minmax(230px, 270px);
+    --advisor-dock-radius: 36px;
+    --advisor-field-height: 60px;
+    --advisor-icon-box: 44px;
+    --advisor-card-width: min(860px, calc(100vw - 96px));
+    --advisor-card-height: min(710px, calc(100svh - var(--da-header-height, 82px) - var(--da-dock-space, 126px) - 76px));
+
+    position: relative;
+    isolation: isolate;
+    min-height: calc(100svh - var(--da-header-height, 82px));
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    overflow: hidden;
+    color: var(--da-text-100, #f7fbff);
+    font-family: var(--da-font, Inter, ui-sans-serif, system-ui, sans-serif);
+    background:
+        radial-gradient(circle at 50% -12%, rgba(255, 255, 255, .055), transparent 28%),
+        radial-gradient(circle at 9% 16%, rgba(52, 228, 170, .115), transparent 34%),
+        radial-gradient(circle at 88% 12%, rgba(86, 215, 242, .105), transparent 36%),
+        radial-gradient(circle at 64% 92%, rgba(149, 133, 255, .07), transparent 38%),
+        linear-gradient(180deg, #081525 0%, #050b16 52%, #030711 100%);
+}
+
+.DietAdvisor,
+.DietAdvisor * {
+    box-sizing: border-box;
+}
+
+.DietAdvisor::before {
+    content: "";
+    position: absolute;
+    inset: -34% -18%;
+    z-index: -3;
+    pointer-events: none;
+    opacity: .9;
+    filter: blur(86px) saturate(135%);
+    background:
+        conic-gradient(
+            from 210deg at 48% 45%,
+            transparent 0deg,
+            rgba(52, 228, 170, .16) 58deg,
+            transparent 126deg,
+            rgba(86, 215, 242, .13) 190deg,
+            transparent 252deg,
+            rgba(149, 133, 255, .1) 314deg,
+            transparent 360deg
+        );
+    animation: advisorAurora 26s var(--da-ease, cubic-bezier(.22, .61, .36, 1)) infinite alternate;
+}
+
+.DietAdvisor::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    opacity: .58;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .04), transparent 32%),
+        radial-gradient(circle at 50% 42%, transparent 0, rgba(3, 7, 17, .16) 64%, rgba(3, 7, 17, .72) 100%),
+        linear-gradient(90deg, rgba(255, 255, 255, .018) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255, 255, 255, .014) 1px, transparent 1px);
+    background-size: auto, auto, 76px 76px, 76px 76px;
+    mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 76%, transparent 100%);
+    animation: advisorAtmosphere 18s ease-in-out infinite;
+}
+
+.DietAdvisor button,
+.DietAdvisor input,
+.DietAdvisor select {
+    font: inherit;
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.DietAdvisor .advisor-content {
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 54px 48px calc(var(--da-dock-space, 126px) + var(--da-dock-bottom, 30px) + 26px);
+}
+
+.DietAdvisor .advisor-content:empty {
+    min-height: calc(100svh - var(--da-header-height, 82px));
+}
+
+/* Results have their own surface so the welcome typography cannot leak in. */
+.DietAdvisor--has-result {
+    display: block;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(86, 215, 242, .4) transparent;
+}
+
+.DietAdvisor--has-result .advisor-content {
+    align-items: flex-start;
+}
+
+.DietAdvisor--has-result::before,
+.DietAdvisor--has-result::after {
+    inset: 0;
+    animation: none;
+}
+
+.DietAdvisor .meal-plan-card {
+    width: 100%;
+    max-width: 1100px;
+    min-width: 0;
+    padding: clamp(20px, 3vw, 36px);
+    border: 1px solid var(--da-border-medium, rgba(255, 255, 255, .15));
+    border-radius: var(--da-radius-xl, 32px);
+    background:
+        radial-gradient(ellipse at 0% 0%, rgba(52, 228, 170, .1), transparent 48%),
+        radial-gradient(ellipse at 100% 0%, rgba(149, 133, 255, .09), transparent 45%),
+        linear-gradient(145deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02)),
+        var(--da-glass-medium, rgba(14, 23, 36, .58));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), var(--da-shadow-mid);
+    backdrop-filter: blur(28px) saturate(150%);
+    -webkit-backdrop-filter: blur(28px) saturate(150%);
+    text-align: start;
+    animation: welcomeFadeIn 500ms var(--da-ease-out) both;
+}
+
+.DietAdvisor .meal-plan-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.DietAdvisor .meal-plan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--da-green-300);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.DietAdvisor .meal-plan-title {
+    max-width: 28ch;
+    margin: 0 0 28px;
+    color: var(--da-text-100);
+    font-size: clamp(1.6rem, 2.6vw, 2.4rem);
+    font-weight: 760;
+    line-height: 1.25;
+    letter-spacing: -.025em;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+}
+
+.DietAdvisor .recommendation-content {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+@media (max-width: 1000px) {
+    .DietAdvisor .recommendation-content {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .DietAdvisor .recommendation-content {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .DietAdvisor .meal-plan-card {
+        padding: 20px 16px;
+        border-radius: 24px;
+    }
+}
+
+@media (max-width: 700px), (max-height: 600px) {
+    /* Keep the full plan reachable on short screens, above the form. */
+    .DietAdvisor.DietAdvisor--has-result .advisor-content {
+        padding: 20px 12px;
+    }
+
+    .DietAdvisor.DietAdvisor--has-result .diet-form {
+        position: relative;
+        left: auto;
+        bottom: auto;
+        margin: 0 auto 20px;
+        transform: none;
+        animation: none;
+    }
+}
+
+/* Transformed into home.css central floating welcome engine format */
+.DietAdvisor .recommendation-box {
+    position: relative;
+    width: 100% !important;
+    max-width: 680px !important;
+    max-height: none !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 1.5rem !important;
+    padding: 0 1.5rem !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    overflow: visible !important;
+    animation: welcomeFadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Glowing Sparkle ✦ Glyphs Core Integration */
+.DietAdvisor .recommendation-box::before {
+    content: "✦" !important;
+    position: static !important;
+    font-size: 2.6rem !important;
+    background: linear-gradient(var(--angle), #ffffff 0%, var(--da-cyan-400) 50%, var(--da-purple-400) 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    animation: floatAndSpin 8s ease-in-out infinite, rotateGradient 16s linear infinite !important;
+    display: inline-block !important;
+    margin-bottom: 0.25rem !important;
+    mix-blend-mode: normal !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+/* Ambient Backlighting Chroma Bloom Projection */
+.DietAdvisor .recommendation-box::after {
+    content: "" !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 220% !important;
+    height: 220% !important;
+    background: radial-gradient(circle, rgba(86, 215, 242, 0.25) 0%, rgba(149, 133, 255, 0.15) 35%, rgba(52, 228, 170, 0.08) 60%, transparent 80%) !important;
+    filter: blur(100px) !important;
+    z-index: -1 !important;
+    pointer-events: none !important;
+    animation: ambientGlowPulse 16s ease-in-out infinite alternate !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    opacity: 1 !important;
+}
+
+.DietAdvisor .recommendation-box:hover {
+    transform: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.DietAdvisor .recommendation-box::-webkit-scrollbar {
+    display: none !important;
+}
+
+.DietAdvisor .language-toggle-container {
+    position: relative;
+    z-index: 1;
+    align-self: flex-end;
+    display: inline-flex;
+    gap: 4px;
+    padding: 5px;
+    border: 1px solid rgba(255, 255, 255, .105);
+    border-radius: 999px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .085), rgba(255, 255, 255, .032)),
+        rgba(255, 255, 255, .045);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .12),
+        0 16px 38px rgba(0, 0, 0, .2);
+    backdrop-filter: blur(18px) saturate(170%);
+    -webkit-backdrop-filter: blur(18px) saturate(170%);
+}
+
+.DietAdvisor .lang-btn {
+    min-width: 88px;
+    height: 38px;
+    padding: 0 17px;
+    border: 0;
+    border-radius: 999px;
+    outline: 0;
+    color: var(--da-text-400, #b6c4d3);
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 720;
+    letter-spacing: 0;
+    line-height: 1;
+    white-space: nowrap;
+    transition:
+        color var(--da-fast, 180ms) ease,
+        background var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1)),
+        box-shadow var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1)),
+        transform var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1));
+}
+
+.DietAdvisor .lang-btn:hover {
+    color: var(--da-text-100, #f7fbff);
+    transform: translateY(-1px);
+}
+
+.DietAdvisor .lang-btn:focus-visible {
+    box-shadow: 0 0 0 3px rgba(52, 228, 170, .16);
+}
+
+.DietAdvisor .lang-btn.active {
+    color: #03120e;
+    background: linear-gradient(135deg, var(--da-green-300, #7ff2d0), var(--da-cyan-400, #56d7f2));
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .34),
+        0 10px 26px rgba(52, 228, 170, .22);
+}
+
+/* Title Shimmer Spectrum Matrix Setup */
+.DietAdvisor .recommendation-box h3 {
+    position: relative !important;
+    z-index: 1 !important;
+    margin: 0 0 0.5rem 0 !important;
+    font-size: 3.8rem !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.04em !important;
+    line-height: 1.1 !important;
+    background: linear-gradient(var(--angle), #ffffff 0%, var(--da-cyan-400) 25%, var(--da-green-400) 50%, var(--da-purple-400) 75%, #ffffff 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    animation: rotateGradient 14s linear infinite !important;
+}
+
+.DietAdvisor .recommendation-box h3::after {
+    display: none !important;
+}
+
+.DietAdvisor .recommendation-box[dir="rtl"] h3::after {
+    display: none !important;
+}
+
+/* Glowing Atmospheric Text Breathe Effect */
+.DietAdvisor .recommendation-box p {
+    position: relative !important;
+    z-index: 1 !important;
+    margin: 0 !important;
+    padding-top: 0 !important;
+    border-top: none !important;
+    font-size: 1.2rem !important;
+    line-height: 1.75 !important;
+    max-width: 540px !important;
+    letter-spacing: 0.01em !important;
+    background: linear-gradient(180deg, #ffffff 40%, rgba(255, 255, 255, 0.7) 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    animation: paragraphGlowBreathe 12s ease-in-out infinite alternate !important;
+    white-space: pre-wrap;
+    text-wrap: pretty;
+}
+
+.DietAdvisor .recommendation-box p::first-line {
+    color: inherit !important;
+    font-weight: inherit !important;
+}
+
+.DietAdvisor .diet-form {
+    position: fixed;
+    left: 50%;
+    bottom: var(--da-dock-bottom, 30px);
+    z-index: 20;
+    width: var(--advisor-dock-width);
+    display: grid;
+    grid-template-columns: var(--advisor-dock-columns);
+    align-items: center;
+    gap: 14px;
+    overflow: hidden;
+    isolation: isolate;
+    padding: 14px;
+    border: 1px solid var(--da-border-soft, rgba(255, 255, 255, .105));
+    border-radius: var(--advisor-dock-radius);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .105), rgba(255, 255, 255, .032)),
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, .09), transparent 54%),
+        rgba(7, 15, 27, .7);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .18),
+        inset 0 -1px 0 rgba(255, 255, 255, .04),
+        0 26px 70px rgba(0, 0, 0, .38),
+        0 0 76px rgba(86, 215, 242, .08),
+        0 0 116px rgba(52, 228, 170, .045);
+    transform: translate3d(-50%, 0, 0);
+    backdrop-filter: blur(44px) saturate(180%);
+    -webkit-backdrop-filter: blur(44px) saturate(180%);
+    animation:
+        advisorDockReveal 720ms var(--da-ease-out, cubic-bezier(.16, 1, .3, 1)) both,
+        advisorDockFloat 7s ease-in-out 900ms infinite;
+}
+
+.DietAdvisor .diet-form::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+        linear-gradient(
+            108deg,
+            transparent 0%,
+            transparent 30%,
+            rgba(255, 255, 255, .16) 44%,
+            rgba(255, 255, 255, .045) 56%,
+            transparent 72%,
+            transparent 100%
+        );
+    transform: translateX(-130%);
+    animation: advisorGlassSweep 11s linear 1.2s infinite;
+}
+
+.DietAdvisor .diet-form::after {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: calc(var(--advisor-dock-radius) - 1px);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .13), transparent 31%),
+        linear-gradient(90deg, rgba(52, 228, 170, .06), transparent 38%, rgba(86, 215, 242, .055));
+    opacity: .82;
+}
+
+.DietAdvisor .field {
+    position: relative;
+    min-width: 0;
+    height: var(--advisor-field-height);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 14px;
+    border: 1px solid rgba(255, 255, 255, .086);
+    border-radius: 20px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .082), rgba(255, 255, 255, .027)),
+        rgba(255, 255, 255, .038);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .11),
+        inset 0 -1px 0 rgba(255, 255, 255, .025),
+        0 12px 30px rgba(0, 0, 0, .14);
+    backdrop-filter: blur(18px) saturate(165%);
+    -webkit-backdrop-filter: blur(18px) saturate(165%);
+    animation: advisorFieldReveal 560ms var(--da-ease-out, cubic-bezier(.16, 1, .3, 1)) both;
+    transition:
+        transform var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1)),
+        border-color var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1)),
+        background var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1)),
+        box-shadow var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1));
+}
+
+.DietAdvisor .field::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255, 255, 255, .105), transparent 38%);
+    opacity: .66;
+}
+
+.DietAdvisor .field:nth-child(1) { animation-delay: 70ms; }
+.DietAdvisor .field:nth-child(2) { animation-delay: 120ms; }
+.DietAdvisor .field:nth-child(3) { animation-delay: 170ms; }
+.DietAdvisor .field:nth-child(4) { animation-delay: 220ms; }
+
+.DietAdvisor .field:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, .16);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .112), rgba(255, 255, 255, .04)),
+        rgba(255, 255, 255, .055);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .15),
+        inset 0 -1px 0 rgba(255, 255, 255, .03),
+        0 18px 40px rgba(0, 0, 0, .2),
+        0 0 30px rgba(52, 228, 170, .075);
+}
+
+.DietAdvisor .field:focus-within {
+    transform: translateY(-3px);
+    border-color: var(--da-border-green, rgba(52, 228, 170, .34));
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .118), rgba(255, 255, 255, .043)),
+        rgba(52, 228, 170, .04);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .16),
+        0 18px 42px rgba(0, 0, 0, .22),
+        0 0 34px rgba(52, 228, 170, .17);
+}
+
+.DietAdvisor .field-icon {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 var(--advisor-icon-box);
+    width: var(--advisor-icon-box);
+    height: var(--advisor-icon-box);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, .095);
+    border-radius: 15px;
+    color: var(--da-green-300, #7ff2d0);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .115), rgba(255, 255, 255, .034)),
+        radial-gradient(circle at 50% 0%, rgba(52, 228, 170, .16), transparent 62%),
+        rgba(255, 255, 255, .04);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .15),
+        0 0 24px rgba(52, 228, 170, .08);
+    transition:
+        transform var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1)),
+        color var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1)),
+        border-color var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1)),
+        box-shadow var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1));
+}
+
+.DietAdvisor .field-icon svg {
+    width: 21px;
+    height: 21px;
+    stroke-width: 2.2;
+}
+
+.DietAdvisor .field:hover .field-icon {
+    transform: translateY(-1px) scale(1.055);
+    border-color: rgba(52, 228, 170, .28);
+    color: #dffbf2;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .18),
+        0 0 34px rgba(52, 228, 170, .22);
+}
+
+.DietAdvisor .field:focus-within .field-icon {
+    border-color: rgba(86, 215, 242, .38);
+    color: var(--da-cyan-300, #9beaff);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .2),
+        0 0 32px rgba(86, 215, 242, .18);
+}
+
+.DietAdvisor .field-content {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+}
+
+.DietAdvisor .field-content label {
+    color: var(--da-text-500, #8ea0b3);
+    font-size: 10px;
+    font-weight: 820;
+    letter-spacing: 0;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.DietAdvisor .field-content input,
+.DietAdvisor .field-content select {
+    width: 100%;
+    min-width: 0;
+    height: 23px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    color: var(--da-text-100, #f7fbff);
+    background: transparent;
+    font-size: 14px;
+    font-weight: 720;
+    letter-spacing: 0;
+    line-height: 1.15;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.DietAdvisor .field-content input::placeholder {
+    color: rgba(182, 196, 211, .66);
+}
+
+.DietAdvisor .field-content input::-webkit-outer-spin-button,
+.DietAdvisor .field-content input::-webkit-inner-spin-button {
+    margin: 0;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.DietAdvisor .field-content input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.DietAdvisor .field-content input:-webkit-autofill {
+    -webkit-text-fill-color: var(--da-text-100, #f7fbff);
+    caret-color: var(--da-text-100, #f7fbff);
+    box-shadow: 0 0 0 1000px transparent inset;
+    transition: background-color 9999s ease-out;
+}
+
+.DietAdvisor .field-content select {
+    cursor: pointer;
+}
+
+.DietAdvisor .field-content select:invalid {
+    color: rgba(182, 196, 211, .66);
+}
+
+.DietAdvisor .field-content option {
+    color: var(--da-text-100, #f7fbff);
+    background: #071220;
+}
+
+.DietAdvisor .generate-btn {
+    position: relative;
+    min-width: 0;
+    height: var(--advisor-field-height);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    overflow: hidden;
+    isolation: isolate;
+    padding: 0 22px;
+    border: 0;
+    border-radius: 22px;
+    outline: 0;
+    color: #03120e;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 860;
+    letter-spacing: 0;
+    line-height: 1;
+    background:
+        linear-gradient(135deg, var(--da-green-400, #34e4aa) 0%, var(--da-green-300, #7ff2d0) 43%, var(--da-cyan-400, #56d7f2) 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .46),
+        inset 0 -1px 0 rgba(0, 0, 0, .1),
+        0 18px 42px rgba(52, 228, 170, .24),
+        0 0 52px rgba(86, 215, 242, .15);
+    animation: advisorButtonReveal 620ms var(--da-ease-out, cubic-bezier(.16, 1, .3, 1)) 260ms both;
+    transition:
+        transform var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1)),
+        filter var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1)),
+        box-shadow var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1)),
+        opacity var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1));
+}
+
+.DietAdvisor .generate-btn::before {
+    content: "";
+    position: absolute;
+    top: -92%;
+    left: -72%;
+    z-index: -1;
+    width: 48%;
+    height: 284%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .62), transparent);
+    transform: rotate(22deg);
+    animation: advisorButtonShine 6.4s ease-in-out 1.4s infinite;
+}
+
+.DietAdvisor .generate-btn::after {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    z-index: -2;
+    border-radius: inherit;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .36), transparent 45%),
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, .32), transparent 55%);
+    opacity: .78;
+}
+
+.DietAdvisor .generate-btn:hover {
+    transform: translateY(-4px);
+    filter: brightness(1.055) saturate(1.08);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .52),
+        inset 0 -1px 0 rgba(0, 0, 0, .08),
+        0 24px 52px rgba(52, 228, 170, .3),
+        0 0 62px rgba(86, 215, 242, .2);
+}
+
+.DietAdvisor .generate-btn:active {
+    transform: translateY(-1px) scale(.985);
+}
+
+.DietAdvisor .generate-btn:focus-visible {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .52),
+        0 0 0 4px rgba(52, 228, 170, .18),
+        0 18px 44px rgba(52, 228, 170, .3);
+}
+
+.DietAdvisor .generate-btn:disabled {
+    cursor: not-allowed;
+    opacity: .68;
+    filter: saturate(.82);
+    transform: none;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .36),
+        0 12px 30px rgba(52, 228, 170, .14);
+}
+
+.DietAdvisor .generate-btn svg {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.5;
+    transition: transform var(--da-base, 320ms) var(--da-ease, cubic-bezier(.22, .61, .36, 1));
+}
+
+.DietAdvisor .generate-btn:hover svg {
+    transform: rotate(14deg) scale(1.08);
+}
+
+.DietAdvisor .generate-btn:disabled svg {
+    animation: advisorAiSpin 1s linear infinite;
+}
+
+.DietAdvisor .generate-btn span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.DietAdvisor .loading-status {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: var(--da-text-100, #f7fbff);
+    font-size: 18px;
+    font-weight: 760;
+    letter-spacing: 0;
+    line-height: 1;
+    text-shadow: 0 0 28px rgba(86, 215, 242, .2);
+    animation: advisorLoadingText 1.55s ease-in-out infinite;
+}
+
+.DietAdvisor .loading-status::before {
+    content: "";
+    width: 25px;
+    height: 25px;
+    border: 2px solid rgba(255, 255, 255, .16);
+    border-top-color: var(--da-green-400, #34e4aa);
+    border-right-color: rgba(86, 215, 242, .92);
+    border-radius: 50%;
+    box-shadow:
+        0 0 22px rgba(52, 228, 170, .2),
+        0 0 38px rgba(86, 215, 242, .1);
+    animation: advisorSpinner .84s linear infinite;
+}
+
+.DietAdvisor .loading-status::after {
+    content: "";
+    position: absolute;
+    inset: -30px -42px;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: 999px;
+    background: conic-gradient(from 180deg, transparent, rgba(52, 228, 170, .14), transparent, rgba(86, 215, 242, .1), transparent);
+    filter: blur(34px);
+    opacity: .85;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .DietAdvisor .meal-plan-card,
+    .DietAdvisor .recommendation-box,
+    .DietAdvisor .diet-form,
+    .DietAdvisor .field,
+    .DietAdvisor .language-toggle-container {
+        background-color: rgba(7, 15, 27, .94);
+    }
+}
+
+@media (max-width: 1600px) {
+    .DietAdvisor {
+        --advisor-dock-width: min(1360px, calc(100vw - 48px));
+        --advisor-dock-columns: repeat(4, minmax(156px, 1fr)) minmax(214px, 244px);
+    }
+}
+
+@media (max-width: 1400px) {
+    .DietAdvisor {
+        --advisor-dock-width: min(1210px, calc(100vw - 40px));
+        --advisor-dock-columns: repeat(4, minmax(138px, 1fr)) minmax(190px, 220px);
+        --advisor-field-height: 58px;
+        --advisor-icon-box: 42px;
+    }
+
+    .DietAdvisor .diet-form {
+        gap: 12px;
+        padding: 13px;
+    }
+
+    .DietAdvisor .generate-btn {
+        padding: 0 17px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .DietAdvisor {
+        --advisor-dock-width: min(860px, calc(100vw - 34px));
+        --advisor-dock-columns: repeat(2, minmax(0, 1fr));
+        --advisor-card-width: min(900px, calc(100vw - 56px));
+        --advisor-card-height: calc(100svh - var(--da-header-height, 82px) - 252px - 48px);
+    }
+
+    .DietAdvisor .advisor-content {
+        align-items: flex-start;
+        padding-top: 36px;
+        padding-bottom: calc(252px + var(--da-dock-bottom, 30px) + 24px);
+    }
+
+    .DietAdvisor .generate-btn {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 900px) {
+    .DietAdvisor {
+        --advisor-dock-width: min(720px, calc(100vw - 24px));
+        --advisor-card-width: min(720px, calc(100vw - 36px));
+        --advisor-card-height: calc(100svh - var(--da-header-height, 74px) - 250px - 34px);
+    }
+
+    .DietAdvisor .advisor-content {
+        padding: 28px 18px calc(250px + var(--da-dock-bottom, 20px) + 20px);
+    }
+}
+
+@media (max-width: 700px) {
+    .DietAdvisor {
+        --advisor-dock-width: calc(100vw - 22px);
+        --advisor-dock-columns: 1fr;
+        --advisor-dock-radius: 26px;
+        --advisor-field-height: 54px;
+        --advisor-icon-box: 38px;
+        --advisor-card-width: calc(100vw - 24px);
+        --advisor-card-height: calc(100svh - var(--da-header-height, 68px) - 372px - 26px);
+    }
+
+    .DietAdvisor .advisor-content {
+        align-items: flex-start;
+        padding: 22px 12px calc(372px + var(--da-dock-bottom, 14px) + 16px);
+    }
+
+    .DietAdvisor .language-toggle-container {
+        align-self: stretch;
+        justify-content: center;
+    }
+
+    .DietAdvisor .lang-btn {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .DietAdvisor .diet-form {
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .DietAdvisor .field {
+        padding: 0 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .DietAdvisor {
+        --advisor-dock-width: calc(100vw - 18px);
+        --advisor-dock-radius: 22px;
+        --advisor-field-height: 50px;
+        --advisor-icon-box: 34px;
+        --advisor-card-width: calc(100vw - 18px);
+        --advisor-card-height: calc(100svh - var(--da-header-height, 64px) - 346px - 20px);
+    }
+
+    .DietAdvisor .advisor-content {
+        padding: 18px 9px calc(346px + var(--da-dock-bottom, 10px) + 14px);
+    }
+
+    .DietAdvisor .diet-form {
+        gap: 9px;
+        padding: 10px;
+    }
+
+    .DietAdvisor .field-content label {
+        font-size: 9px;
+    }
+
+    .DietAdvisor .field-content input,
+    .DietAdvisor .field-content select {
+        font-size: 13px;
+    }
+
+    .DietAdvisor .generate-btn {
+        padding: 0 14px;
+        font-size: 13px;
+        border-radius: 17px;
+    }
+
+    .DietAdvisor .loading-status {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .DietAdvisor .recommendation-box h3 {
+        font-size: 2.2rem !important;
+    }
+
+    .DietAdvisor .recommendation-box p {
+        font-size: 1rem !important;
+        line-height: 1.6 !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .DietAdvisor .meal-plan-card,
+    .DietAdvisor::before,
+    .DietAdvisor::after,
+    .DietAdvisor .recommendation-box,
+    .DietAdvisor .diet-form,
+    .DietAdvisor .diet-form::before,
+    .DietAdvisor .field,
+    .DietAdvisor .generate-btn,
+    .DietAdvisor .generate-btn::before,
+    .DietAdvisor .generate-btn:disabled svg,
+    .DietAdvisor .loading-status,
+    .DietAdvisor .loading-status::before {
+        animation: none;
+    }
+}
+
+@keyframes advisorAurora {
+    0% {
+        transform: translate3d(-3%, -2%, 0) rotate(0deg) scale(1);
+    }
+
+    100% {
+        transform: translate3d(4%, 3%, 0) rotate(8deg) scale(1.08);
+    }
+}
+
+@keyframes advisorAtmosphere {
+    0%, 100% {
+        transform: translateY(0);
+        opacity: .52;
+    }
+
+    50% {
+        transform: translateY(12px);
+        opacity: .66;
+    }
+}
+
+@keyframes welcomeFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rotateGradient {
+  0% {
+    --angle: 0deg;
+  }
+  100% {
+    --angle: 360deg;
+  }
+}
+
+@keyframes ambientGlowPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.85) rotate(0deg);
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.4) rotate(45deg);
+    opacity: 0.7;
+  }
+}
+
+@keyframes paragraphGlowBreathe {
+  0% {
+    filter: opacity(0.8) drop-shadow(0 0 10px rgba(86, 215, 242, 0.15));
+  }
+  100% {
+    filter: opacity(1) drop-shadow(0 0 35px rgba(149, 133, 255, 0.6)) drop-shadow(0 0 15px rgba(86, 215, 242, 0.45));
+  }
+}
+
+@keyframes floatAndSpin {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translateY(-12px) rotate(180deg) scale(1.1);
+  }
+}
+
+@keyframes advisorDockReveal {
+    0% {
+        opacity: 0;
+        transform: translate3d(-50%, 44px, 0) scale(.985);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate3d(-50%, 0, 0) scale(1);
+    }
+}
+
+@keyframes advisorDockFloat {
+    0%, 100% {
+        transform: translate3d(-50%, 0, 0);
+    }
+
+    50% {
+        transform: translate3d(-50%, -5px, 0);
+    }
+}
+
+@keyframes advisorGlassSweep {
+    0% {
+        transform: translateX(-130%);
+    }
+
+    100% {
+        transform: translateX(138%);
+    }
+}
+
+@keyframes advisorFieldReveal {
+    0% {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes advisorButtonReveal {
+    0% {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes advisorButtonShine {
+    0%, 45% {
+        left: -72%;
+    }
+
+    72%, 100% {
+        left: 128%;
+    }
+}
+
+@keyframes advisorAiSpin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes advisorSpinner {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes advisorLoadingText {
+    0%, 100% {
+        opacity: .72;
+        transform: translateY(0);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translateY(-1px);
+    }
+}

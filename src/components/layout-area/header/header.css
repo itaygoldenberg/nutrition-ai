@@ -1,0 +1,159 @@
+.advisor-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    height: var(--da-header-height, 82px);
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) auto minmax(180px, 1fr);
+    align-items: center;
+    gap: 24px;
+    padding: 0 clamp(28px, 4vw, 56px);
+    border-bottom: 1px solid rgba(255, 255, 255, .09);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .09), rgba(255, 255, 255, .025)),
+        rgba(5, 10, 19, .72);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .1),
+        0 20px 54px rgba(0, 0, 0, .28);
+    backdrop-filter: blur(32px) saturate(170%);
+    -webkit-backdrop-filter: blur(32px) saturate(170%);
+}
+
+.advisor-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 50% 0%, rgba(52, 228, 170, .13), transparent 34%),
+        linear-gradient(90deg, rgba(52, 228, 170, .04), transparent 32%, transparent 68%, rgba(86, 215, 242, .045));
+    opacity: .85;
+}
+
+.advisor-badge {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 0 15px;
+    border: 1px solid rgba(52, 228, 170, .22);
+    border-radius: 999px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .095), rgba(255, 255, 255, .025)),
+        rgba(52, 228, 170, .08);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .13),
+        0 0 24px rgba(52, 228, 170, .09);
+    color: var(--da-green-300, #7ff2d0);
+    font-size: 11px;
+    font-weight: 820;
+    letter-spacing: 0;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.advisor-header h1 {
+    justify-self: center;
+    margin: 0;
+    color: var(--da-text-100, #f7fbff);
+    font-size: 31px;
+    font-weight: 860;
+    letter-spacing: 0;
+    line-height: 1;
+    text-align: center;
+    background: linear-gradient(100deg, #ffffff 0%, #dffbf2 34%, var(--da-green-300, #7ff2d0) 56%, var(--da-cyan-300, #9beaff) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    text-shadow: 0 0 34px rgba(86, 215, 242, .16);
+    -webkit-text-fill-color: transparent;
+}
+
+.advisor-header p {
+    justify-self: end;
+    max-width: 390px;
+    margin: 0;
+    color: var(--da-text-400, #b6c4d3);
+    font-size: 13px;
+    font-weight: 560;
+    letter-spacing: 0;
+    line-height: 1.35;
+    text-align: right;
+    white-space: nowrap;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .advisor-header {
+        background: rgba(5, 10, 19, .94);
+    }
+}
+
+@media (max-width: 1200px) {
+    .advisor-header {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        padding: 0 28px;
+    }
+
+    .advisor-header h1 {
+        font-size: 28px;
+    }
+
+    .advisor-header p {
+        max-width: 260px;
+    }
+}
+
+@media (max-width: 900px) {
+    .advisor-header {
+        grid-template-columns: auto minmax(0, 1fr);
+        height: var(--da-header-height, 74px);
+        gap: 16px;
+        padding: 0 22px;
+    }
+
+    .advisor-header h1 {
+        justify-self: end;
+        font-size: 24px;
+        text-align: right;
+    }
+
+    .advisor-header p {
+        display: none;
+    }
+}
+
+@media (max-width: 700px) {
+    .advisor-header {
+        height: var(--da-header-height, 68px);
+        padding: 0 18px;
+    }
+
+    .advisor-badge {
+        min-height: 30px;
+        padding: 0 12px;
+        font-size: 10px;
+    }
+
+    .advisor-header h1 {
+        font-size: 21px;
+    }
+}
+
+@media (max-width: 480px) {
+    .advisor-header {
+        height: var(--da-header-height, 64px);
+        gap: 10px;
+        padding: 0 12px;
+    }
+
+    .advisor-badge {
+        max-width: 104px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .advisor-header h1 {
+        font-size: 19px;
+    }
+}
