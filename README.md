@@ -1,126 +1,141 @@
 <p align="center">
-  <img src="./docs/readme-banner.svg" alt="Nutrition AI animated project banner" width="100%" />
+  <img src="./docs/readme-banner.svg" alt="Nutrition AI project banner" width="100%" />
 </p>
 
 <p align="center">
-  <a href="#running-it"><img src="./docs/actions/run.svg" alt="Run Nutrition AI locally" width="250" /></a>
-  <a href="https://github.com/itaygoldenberg/nutrition-ai"><img src="./docs/actions/source.svg" alt="View the Nutrition AI source" width="250" /></a>
-  <a href="https://github.com/itaygoldenberg?tab=repositories"><img src="./docs/actions/github.svg" alt="More projects by Itay Goldenberg" width="250" /></a>
-  <a href="https://www.linkedin.com/in/itay-goldenberg/"><img src="./docs/actions/linkedin.svg" alt="Connect with Itay Goldenberg on LinkedIn" width="250" /></a>
+  <a href="#running-locally"><img src="./docs/actions/run.svg" alt="Run locally" width="250" /></a>
+  <a href="https://github.com/itaygoldenberg/nutrition-ai"><img src="./docs/actions/source.svg" alt="View source" width="250" /></a>
+  <a href="https://github.com/itaygoldenberg?tab=repositories"><img src="./docs/actions/github.svg" alt="More projects" width="250" /></a>
+  <a href="https://www.linkedin.com/in/itay-goldenberg/"><img src="./docs/actions/linkedin.svg" alt="LinkedIn" width="250" /></a>
 </p>
-
-> [!NOTE]
-> A React client that turns a description of you and your goal into a meal plan the interface can actually lay out.
 
 <p align="center">
   <a href="#overview">Overview</a>&nbsp;&middot;&nbsp;
   <a href="#features">Features</a>&nbsp;&middot;&nbsp;
+  <a href="#workflow">Workflow</a>&nbsp;&middot;&nbsp;
   <a href="#technology">Technology</a>&nbsp;&middot;&nbsp;
-  <a href="#project-structure">Project structure</a>&nbsp;&middot;&nbsp;
-  <a href="#running-it">Running it</a>&nbsp;&middot;&nbsp;
-  <a href="#notes">Notes</a>
+  <a href="#running-locally">Running locally</a>
 </p>
+
+> [!NOTE]
+> A full-stack course portfolio project by Itay Goldenberg. Generate a structured daily meal plan in Hebrew and English.
 
 ## Overview
 
-A form collects your details and what you are aiming for. The model returns a plan shaped to them, and the app renders it as structure rather than as a paragraph.
+Nutrition AI collects age, height, weight and diet type in a React form, then requests a daily meal plan from OpenAI. The prompt asks for paired Hebrew and English fields for the title, breakfast, lunch, dinner, hydration, tips and warnings.
 
-The part that makes that possible is typing the answer. `meal-plan-model` describes the shape the reply has to come back in, so the response arrives as data the components can iterate over instead of as a string the interface has to guess at.
+The service parses the response into the MealPlanModel shape so the interface can render separate sections and switch languages instead of displaying a single block of prose.
+
+<table><tr><td align="center" width="25%"><strong>4 INPUTS</strong><br /><sub>personal details</sub></td><td align="center" width="25%"><strong>2 LANGUAGES</strong><br /><sub>Hebrew and English</sub></td><td align="center" width="25%"><strong>6 SECTIONS</strong><br /><sub>meals and guidance</sub></td><td align="center" width="25%"><strong>JSON</strong><br /><sub>structured response</sub></td></tr></table>
 
 | Project detail | Implementation |
 |---|---|
-| Frontend | React, TypeScript and Vite |
-| Input | react-hook-form, validated before anything is sent |
-| Typed request | `models/user-details.ts` |
-| Typed response | `models/meal-plan-model.ts` |
-| Model | OpenAI, reached through `services/gpt.ts` |
-| Mapping | `services/nutrition-service.ts` turns the reply into the model |
+| React + TypeScript | Form and result components |
+| react-hook-form | Input handling |
+| Axios + OpenAI | Completion request |
+| Vite + CSS | Development and presentation |
 
 ## Contents
 
 - [Overview](#overview)
 - [Features](#features)
+- [Workflow](#workflow)
 - [Technology](#technology)
 - [Project structure](#project-structure)
-- [Running it](#running-it)
-- [Notes](#notes)
+- [Running locally](#running-locally)
+- [Checks](#checks)
+- [Additional details](#additional-details)
+- [Operational notes](#operational-notes)
+- [Author](#author)
 
 ## Features
 
-### A plan built for the input
+### Personalized request
 
-The details go into the prompt, so the result is shaped to the goal rather than being a generic list.
+Age, height, weight and diet type are included in the meal-plan prompt.
 
-### Typing the answer, not only the request
+### Bilingual result fields
 
-Without a model for the response the reply is a string and the interface has nothing to lay out. Describing the expected shape is what makes the plan renderable.
+The requested JSON contains parallel `_he` and `_en` fields for each section.
 
-### Validation before the call
+### Section-based rendering
 
-react-hook-form rejects an incomplete form in the browser, so a malformed request never costs a round trip.
+Meal arrays are rendered as individual items, keeping meals, hydration, tips and warnings distinct.
 
-### One place that talks to the model
+### Separated model service
 
-`services/gpt.ts` holds the endpoint and the request shape. Nothing else in the app knows the model exists.
+The HTTP completion request is isolated in `src/services/gpt.ts`; NutritionService constructs the nutrition-specific prompt.
+
+## Workflow
+
+<p align="center">
+  <img src="./docs/workflow.svg" alt="DETAILS FORM → NUTRITION PROMPT → OPENAI RESPONSE → RESULT SECTIONS" width="100%" />
+</p>
+
+1. **DETAILS FORM:** Age, height, weight and diet type.
+2. **NUTRITION PROMPT:** Request paired Hebrew / English fields.
+3. **OPENAI RESPONSE:** Parse the returned JSON meal plan.
+4. **RESULT SECTIONS:** Render meals, water tips and warnings.
 
 ## Technology
 
 <p align="center">
-  <img src="./docs/tech-strip.svg" alt="Nutrition AI technologies" width="100%" />
+  <img src="./docs/tech-strip.svg" alt="Nutrition AI technology stack" width="100%" />
 </p>
 
 | Technology | Role |
 |---|---|
-| React + TypeScript | Typed single page application |
-| react-hook-form | Form state and validation |
-| Axios | HTTP client |
-| OpenAI | Generates the plan |
-| Vite | Build tooling |
-| Lucide + Font Awesome | Iconography |
+| React + TypeScript | Form and result components |
+| react-hook-form | Input handling |
+| Axios + OpenAI | Completion request |
+| Vite + CSS | Development and presentation |
 
 ## Project structure
 
 ```text
-Nutrition AI/
-|-- src/
-|   |-- components/
-|   |   |-- layout-area/
-|   |   |-- meal-selection/
-|   |   `-- nutrition-area/
-|   |-- models/
-|   |   |-- user-details.ts      what the form collects
-|   |   `-- meal-plan-model.ts   the shape the answer must take
-|   |-- services/
-|   |   |-- gpt.ts               the only file that calls the model
-|   |   `-- nutrition-service.ts
-|   `-- utils/
-`-- docs/                        README artwork only
+src/components/nutrition-area/  Diet advisor form and result
+src/components/meal-selection/ Meal section rendering
+src/models/                   User and meal-plan contracts
+src/services/                 GPT transport and nutrition prompt
+src/utils/                    Application configuration
+docs/                         README artwork
 ```
 
-## Running it
+## Running locally
+
+Clone the repository, then follow the application-specific steps below. Commands assume the repository root unless a directory change is shown.
 
 ```bash
-npm install
+git clone https://github.com/itaygoldenberg/nutrition-ai.git
+cd nutrition-ai
 ```
 
-```bash
-npm run dev
-```
-
-## Environment
-
-Copy `.env.example` to `.env` and fill in your own values:
+Copy `.env.example` to `.env` in this application directory and configure it before starting:
 
 ```env
 VITE_OPENAI_API_KEY=your_openai_api_key
 ```
 
-`.env` is ignored by git. A key that reaches GitHub is public from the moment it is pushed.
+```bash
+npm install
+npm run dev
+```
 
-## Notes
+Open the local address printed by Vite. Restart Vite after changing `.env`.
 
-- A `VITE_` variable is bundled into the client and visible to anyone who opens the browser tools. Acceptable for a local exercise; a deployed version needs a server between the browser and the model.
-- The plan is only as good as the shape it is asked for. Loosening `meal-plan-model` produces prose, and the interface stops being able to render it.
+## Checks
+
+Run `npm run build`. With a local API key, submit complete details, inspect all result sections, and switch between Hebrew and English. Check a narrow screen and the failed-request state. Live generation consumes API usage.
+
+These are available build commands and suggested manual checks, not a claim that a full integration test suite is included.
+
+## Additional details
+
+The response contains `title_en` / `title_he`, plus array pairs for `breakfast`, `lunch`, `dinner`, `hydration`, `tips` and `warnings`. TypeScript describes the shape; `JSON.parse` does not perform runtime schema validation.
+
+## Operational notes
+
+The OpenAI key is read from a `VITE_` variable and is visible in the browser bundle. This implementation is a local learning exercise; public hosting requires moving authenticated model calls to a server. Generated output is parsed as JSON, so malformed model responses can fail at runtime. This project generates educational meal suggestions and is not a clinically validated nutrition service.
 
 ## Author
 
@@ -131,5 +146,5 @@ VITE_OPENAI_API_KEY=your_openai_api_key
 
 <p align="center">
   <a href="https://github.com/itaygoldenberg"><img src="./docs/actions/github.svg" alt="Itay Goldenberg on GitHub" width="250" /></a>
-  <a href="https://www.linkedin.com/in/itay-goldenberg/"><img src="./docs/actions/linkedin.svg" alt="Itay Goldenberg on LinkedIn" width="250" /></a>
+  <a href="https://www.linkedin.com/in/itay-goldenberg/"><img src="./docs/actions/linkedin.svg" alt="Connect on LinkedIn" width="250" /></a>
 </p>
